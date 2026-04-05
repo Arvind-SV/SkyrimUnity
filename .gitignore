@@ -113,3 +113,5 @@ InitTestScene*.unity*
 /Assets/TutorialInfo.meta
 /.vsconfig
 /SkyrimUnity.slnx
+/Assets/Data
+/Assets/Data.meta
