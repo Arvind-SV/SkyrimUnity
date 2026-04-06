@@ -36,8 +36,16 @@ public static class StringTable
             if(!isExtStrings)
             {
                 UInt32 strSize = file.ReadUInt32();
-                str = new(file.ReadChars((int)(strSize) - 1));
-                file.BaseStream.Position += 1;
+                try
+                {
+                    str = new(file.ReadChars((int)(strSize) - 1));
+                    file.BaseStream.Position += 1;
+                }
+                catch(ArgumentException)
+                {
+                    // TODO : Handle in future properly
+                    str = new("DEFAULT STRING");
+                }
             }
             else
             {

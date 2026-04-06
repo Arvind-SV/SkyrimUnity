@@ -42,6 +42,9 @@ public static class SkyrimUnity
         // Initializing Skyrim engine
         engine = new();
         engine.Initialize();
+
+        // Start new game
+        engine.StartNewGame();
     }
 
     

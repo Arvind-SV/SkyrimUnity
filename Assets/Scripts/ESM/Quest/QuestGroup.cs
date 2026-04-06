@@ -46,4 +46,20 @@ public class QuestGroup : BaseGroup
             processedBytes += recordSize;
         }
     }
+
+    public QuestRecord GetQuestWithEDID(string edid)
+    {
+        QuestRecord questRecord = null;
+
+        foreach(QuestRecord record in questRecords.Values)
+        {
+            if(record.EDID == edid)
+            {
+                questRecord = record;
+                break;
+            }
+        }
+
+        return questRecord;
+    }
 }

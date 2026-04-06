@@ -60,6 +60,15 @@ public static class StringUtil
         else
         {
             UInt32 strId = file.ReadUInt32();
+
+            if(SkyrimUnity.engine.esmData.localizedStringTable.ContainsKey(strId))
+            {
+                str = SkyrimUnity.engine.esmData.localizedStringTable[strId];
+            }
+            else
+            {
+                Debug.LogError("String with id " + strId + " not found in string table!\n");
+            }
         }
 
         return str;

@@ -15,5 +15,13 @@ public class SkyrimEngine
         // Read ESM files
         esmData = new();
         esmData.ParseESMFile(SkyrimUnity.skyrimDataFilesPath + SkyrimUnity.skyrimESM);
+
+        QuestManager.Initialize();
+    }
+
+    public void StartNewGame()
+    {
+        // At the beginning of the game, quest MQ101(Unbound) is started
+        QuestManager.StartQuest("MQ101");
     }
 }
