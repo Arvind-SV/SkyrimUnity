@@ -7,6 +7,7 @@ public class QuestRecord : BaseRecord
 {
     public string EDID;
     public string FULL;
+    public PapyrusScriptVMAD VMAD;
     public Dictionary<Int16, QuestStage> questStages = new();
 
     public QuestRecord(BaseRecord baseRecord) : base(baseRecord)
@@ -22,6 +23,7 @@ public class QuestRecord : BaseRecord
 
         string fieldType;
         UInt16 fieldSize;
+
 
         while (processedBytes < numBytes)
         {
@@ -42,9 +44,18 @@ public class QuestRecord : BaseRecord
             {
                 // Quest stage entry
                 QuestStage stage = new();
-                stage.ReadFromFile(file);
+                processedBytes += stage.ReadFromFile(file);
 
                 questStages[stage.index] = stage;
+
+                // As it gets incremented by fieldSize at the end of while loop iteration
+                processedBytes -= fieldSize;
+            }
+            else if(fieldType == "VMAD")
+            {
+                // Script data
+                VMAD = new();
+                VMAD.ReadFromFile(file);
             }
             else
             {
