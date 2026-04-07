@@ -1,15 +1,14 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class QuestRecord : BaseRecord
+public class GlobalRecord : BaseRecord
 {
     public string EDID;
-    public string FULL;
-    public Dictionary<Int16, QuestStage> questStages = new();
+    public byte FNAM;
+    public float FLTV;
 
-    public QuestRecord(BaseRecord baseRecord) : base(baseRecord)
+    public GlobalRecord(BaseRecord baseRecord) : base(baseRecord)
     {
 
     }
@@ -34,17 +33,13 @@ public class QuestRecord : BaseRecord
             {
                 EDID = StringUtil.ReadZStringFromFile(file, fieldSize);
             }
-            else if(fieldType == "FULL")
+            else if(fieldType == "FNAM")
             {
-                FULL = StringUtil.ReadLStringFromFile(file, fieldSize);
+                FNAM = file.ReadByte();
             }
-            else if(fieldType == "INDX")
+            else if(fieldType == "FLTV")
             {
-                // Quest stage entry
-                QuestStage stage = new();
-                stage.ReadFromFile(file);
-
-                questStages[stage.index] = stage;
+                FLTV = file.ReadSingle();
             }
             else
             {
@@ -55,21 +50,5 @@ public class QuestRecord : BaseRecord
         }
 
         return processedBytes;
-    }
-
-    public Int32 GetStartUpStage()
-    {
-        Int32 startUpStage = -1;
-
-        foreach(QuestStage stage in questStages.Values)
-        {
-            if((stage.flags & (byte)CommonESMDefines.QuestStageFlags.StartUpStage) > 0)
-            {
-                startUpStage = stage.index;
-                break;
-            }
-        }
-
-        return startUpStage;
     }
 }

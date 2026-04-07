@@ -7,6 +7,7 @@ public class ESMParser
 {
     public TES4Record tes4Record;
     public QuestGroup quests;
+    public GlobalGroup globalVariables;
 
     public Dictionary<UInt32, string> localizedStringTable = new();
 
@@ -56,10 +57,14 @@ public class ESMParser
                 if(groupLabel == "QUST")
                 {
                     // Group contains quest records
-                    Debug.Log("Processing quest records\n");
-
                     quests = new(group);
                     quests.ReadFromFile(file);
+                }
+                else if(groupLabel == "GLOB")
+                {
+                    // Group contains global variables
+                    globalVariables = new(group);
+                    globalVariables.ReadFromFile(file);
                 }
                 else
                 {

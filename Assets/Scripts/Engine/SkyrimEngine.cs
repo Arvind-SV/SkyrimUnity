@@ -1,13 +1,18 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SkyrimEngine
 {
-    public ESMParser esmData;
+    public CommonDefines.GameState gameState;
 
+    public ESMParser esmData;
+    
     public SkyrimEngine()
     {
         // Setting pointer in SkyrimUnity to use in other classes
         SkyrimUnity.engine = this;
+
+        gameState = CommonDefines.GameState.None;
     }
 
     public void Initialize()
@@ -17,6 +22,17 @@ public class SkyrimEngine
         esmData.ParseESMFile(SkyrimUnity.skyrimDataFilesPath + SkyrimUnity.skyrimESM);
 
         QuestManager.Initialize();
+
+        gameState = CommonDefines.GameState.BGSLogo;
+
+        // Create main scene where Skyrim is rendered
+        SetUpMainRenderScene();
+    }
+
+    public void SetUpMainRenderScene()
+    {
+        Scene mainScene = SceneManager.CreateScene("SkyrimUnity");
+        SceneManager.SetActiveScene(mainScene);
     }
 
     public void StartNewGame()

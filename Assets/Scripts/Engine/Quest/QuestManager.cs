@@ -4,7 +4,7 @@ using UnityEngine;
 public static class QuestManager
 {
     public static QuestGroup quests;
-    public static Dictionary<string, QuestRecord> activeQuests;
+    public static Dictionary<string, QuestStatus> activeQuests;
 
     public static void Initialize()
     {
@@ -25,7 +25,11 @@ public static class QuestManager
             if(questRecord != null)
             {
                 Debug.Log("Starting quest " + questRecord.FULL + "\n");
-                activeQuests[edid] = questRecord;
+
+                QuestStatus questStatus = new(questRecord);
+                activeQuests[edid] = questStatus;
+
+                questStatus.ProcessQuest();
             }
             else
             {

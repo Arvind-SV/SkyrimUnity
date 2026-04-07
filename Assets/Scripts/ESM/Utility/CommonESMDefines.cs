@@ -11,4 +11,9 @@ public static class CommonESMDefines
     {
         Top = 0
     };
+
+    public enum QuestStageFlags
+    {
+        StartUpStage = 0x02
+    };
 }
