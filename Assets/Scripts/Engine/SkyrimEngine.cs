@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -39,5 +40,17 @@ public class SkyrimEngine
     {
         // At the beginning of the game, quest MQ101(Unbound) is started
         QuestManager.StartQuest("MQ101");
+    }
+
+    public float GetGlobalValue(UInt32 formID)
+    {
+        float value = -12345678.0f; // Random invalid value
+
+        if(esmData.globalVariables.globalRecords.ContainsKey(formID))
+        {
+            value = esmData.globalVariables.globalRecords[formID].FLTV;
+        }
+
+        return value;
     }
 }

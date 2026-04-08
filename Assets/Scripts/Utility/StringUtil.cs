@@ -21,6 +21,17 @@ public static class StringUtil
         return str;
     }
 
+    public static string ReadWStringFromFile(BinaryReader file, out UInt32 processedBytes)
+    {
+        UInt16 strSize = file.ReadUInt16();
+
+        string str = new(file.ReadChars((int)strSize));
+
+        processedBytes = 2u + strSize;
+
+        return str;
+    }
+
     // String Size given
     public static string ReadZStringFromFile(BinaryReader file, UInt32 strSize)
     {

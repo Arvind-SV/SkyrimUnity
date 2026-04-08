@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Condition
@@ -54,5 +53,76 @@ public class Condition
         }
 
         file.BaseStream.Position += (numBytes - processedBytes);
+    }
+
+    public bool IsConditionFulfilled()
+    {
+        bool passed = false;
+
+        float comparisonValue = 0.0f;
+
+        if ((conditionFlags & (byte)CommonESMDefines.ConditionOperatorFlags.UseGlobal) == 0)
+        {
+            comparisonValue = this.comparisonValue;
+        }
+
+        float currentValue = -1.0f;
+
+        if(functionIndex == (UInt16)CommonESMDefines.FunctionIndex.GetGlobalValue)
+        {
+            // param1 is formID of global variable
+            currentValue = SkyrimUnity.engine.GetGlobalValue(param1);
+        }
+
+        if(conditionType == 0)
+        {
+            // Equal to
+            if(currentValue == comparisonValue)
+            {
+                passed = true;
+            }
+        }
+        else if (conditionType == 1)
+        {
+            // Not Equal to
+            if (currentValue != comparisonValue)
+            {
+                passed = true;
+            }
+        }
+        else if (conditionType == 2)
+        {
+            // Greater than
+            if (currentValue > comparisonValue)
+            {
+                passed = true;
+            }
+        }
+        else if (conditionType == 3)
+        {
+            // Greater than or Equal to
+            if (currentValue >= comparisonValue)
+            {
+                passed = true;
+            }
+        }
+        else if (conditionType == 4)
+        {
+            // Less than
+            if (currentValue < comparisonValue)
+            {
+                passed = true;
+            }
+        }
+        else if (conditionType == 5)
+        {
+            // Less than or Equal to
+            if (currentValue <= comparisonValue)
+            {
+                passed = true;
+            }
+        }
+
+        return passed;
     }
 }

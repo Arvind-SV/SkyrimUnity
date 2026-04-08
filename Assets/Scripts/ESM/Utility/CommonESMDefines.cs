@@ -28,6 +28,20 @@ public static class CommonESMDefines
         GetEventData = 576
     };
 
+    public enum ScriptPropertyType
+    {
+        Object = 1,
+        WString = 2,
+        Int = 3,
+        Float = 4,
+        Bool = 5,
+        ObjectArray = 11,
+        WStringArray = 12,
+        IntArray = 13,
+        FloatArray = 14,
+        BoolArray = 15
+    };
+    
     public static string[] questLogEntryFields = new string[]
     {
         "CTDA",

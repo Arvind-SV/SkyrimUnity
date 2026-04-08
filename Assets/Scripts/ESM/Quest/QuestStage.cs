@@ -8,7 +8,7 @@ public class QuestStage
     public Int16 index;
     public byte flags;
     public byte unknown;
-    public List<QuestLogEntry> questLogEntries = new();
+    public Dictionary<UInt32, QuestLogEntry> questLogEntries = new();
 
     public UInt32 ReadFromFile(BinaryReader file)
     {
@@ -22,6 +22,8 @@ public class QuestStage
 
         string fieldType;
         UInt16 fieldSize;
+
+        UInt32 idx = 0;
 
         // Extract all attached quest log entries
         while (true)
@@ -41,7 +43,9 @@ public class QuestStage
             QuestLogEntry entry = new();
             processedBytes += entry.ReadFromFile(file);
 
-            questLogEntries.Add(entry);
+            questLogEntries[idx] = entry;
+
+            idx++;
         }
 
         return processedBytes;

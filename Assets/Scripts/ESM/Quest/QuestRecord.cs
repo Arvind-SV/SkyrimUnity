@@ -15,6 +15,24 @@ public class QuestRecord : BaseRecord
 
     }
 
+    public PapyrusScriptFragment GetScriptFragment(Int16 questStageIdx, Int32 logEntryIdx)
+    {
+        PapyrusScriptFragment fragment = null;
+
+        List<PapyrusScriptFragment> scriptFragments = VMAD.fragments;
+
+        foreach(PapyrusScriptFragment scriptFragment in scriptFragments)
+        {
+            if((questStageIdx == scriptFragment.index) && (logEntryIdx == scriptFragment.logEntry))
+            {
+                fragment = scriptFragment;
+                break;
+            }
+        }
+
+        return fragment;
+    }
+
     public override UInt32 ReadFromFile(BinaryReader file)
     {
         UInt32 processedBytes = 0;
@@ -54,8 +72,13 @@ public class QuestRecord : BaseRecord
             else if(fieldType == "VMAD")
             {
                 // Script data
+                Int64 currentPos = file.BaseStream.Position;
+
                 VMAD = new();
-                VMAD.ReadFromFile(file);
+                VMAD.ReadFromFile(file, "QUST", fieldSize);
+
+                // Moving file pointer to expected position(incase reading script fails)
+                file.BaseStream.Position = currentPos + fieldSize;
             }
             else
             {
@@ -68,9 +91,9 @@ public class QuestRecord : BaseRecord
         return processedBytes;
     }
 
-    public Int32 GetStartUpStage()
+    public Int16 GetStartUpStage()
     {
-        Int32 startUpStage = -1;
+        Int16 startUpStage = -1;
 
         foreach(QuestStage stage in questStages.Values)
         {
