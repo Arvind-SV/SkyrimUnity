@@ -17,8 +17,6 @@ public class QuestStatus
 
     public void ProcessStage(Int16 stageIdx)
     {
-        Debug.Log("Current stage of quest " + record.EDID + " = " + currentQuestStage + "\n");
-
         QuestStage stageData = record.questStages[stageIdx];
 
         // Find log entries for which conditions are fulfilled
@@ -38,14 +36,12 @@ public class QuestStatus
 
             if(isConditionFulfilled)
             {
-                Debug.Log("Condition Passed for quest log entry " + logIdx + "\n");
-
                 // Get script fragment corresponding to this stage and log entry
                 PapyrusScriptFragment fragment = record.GetScriptFragment(stageIdx, (Int32)logIdx);
 
                 if(fragment != null)
                 {
-                    Debug.Log("Executing script fragment " + fragment.fragmentName + "\n");
+                    PapyrusScriptManager.ProcessScript(record, fragment.scriptName, fragment.fragmentName);
                 }
                 else
                 {

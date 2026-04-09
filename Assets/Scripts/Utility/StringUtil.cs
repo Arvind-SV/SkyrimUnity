@@ -32,6 +32,15 @@ public static class StringUtil
         return str;
     }
 
+    public static string ReadWStringFromFileBigEndian(BinaryReader file)
+    {
+        UInt16 strSize = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+
+        string str = new(file.ReadChars((int)strSize));
+
+        return str;
+    }
+
     // String Size given
     public static string ReadZStringFromFile(BinaryReader file, UInt32 strSize)
     {
