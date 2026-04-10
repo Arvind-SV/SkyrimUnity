@@ -26,7 +26,7 @@ public static class BinaryFileUtil
     public static float ReadFloat32FromFileBigEndian(BinaryReader file)
     {
         byte[] arr = file.ReadBytes(4);
-        arr = (byte[])arr.Reverse();
+        arr.Reverse();
 
         float result = BitConverter.ToSingle(arr);
 

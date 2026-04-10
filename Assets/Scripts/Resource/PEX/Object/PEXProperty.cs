@@ -10,6 +10,8 @@ public class PEXProperty
     public UInt32 userFlags;
     public byte flags;
     public UInt16 autoVarName;
+    public PEXFunction readHandler;
+    public PEXFunction writeHandler;
 
     public void ReadFromFile(BinaryReader file)
     {
@@ -26,7 +28,14 @@ public class PEXProperty
 
         if((flags & 5) == 1)
         {
+            readHandler = new();
+            readHandler.ReadFromFile(file);
+        }
 
+        if ((flags & 6) == 2)
+        {
+            writeHandler = new();
+            writeHandler.ReadFromFile(file);
         }
     }
 }

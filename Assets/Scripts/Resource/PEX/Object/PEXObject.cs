@@ -14,7 +14,9 @@ public class PEXObject
     public PEXVariable[] variables;
     public UInt16 numProperties;
     public PEXProperty[] properties;
-    
+    public UInt16 numStates;
+    public PEXState[] states;
+
     public void ReadFromFile(BinaryReader file)
     {
         nameIndex = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
@@ -46,6 +48,18 @@ public class PEXObject
             {
                 properties[i] = new();
                 properties[i].ReadFromFile(file);
+            }
+        }
+
+        numStates = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+        if(numStates > 0)
+        {
+            states = new PEXState[numStates];
+
+            for(int i = 0; i < numStates; i++)
+            {
+                states[i] = new();
+                states[i].ReadFromFile(file);
             }
         }
     }
