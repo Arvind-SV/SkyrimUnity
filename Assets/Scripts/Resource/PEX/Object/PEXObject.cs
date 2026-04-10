@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -11,13 +12,13 @@ public class PEXObject
     public UInt32 userFlags;
     public UInt16 autoStateName;
     public UInt16 numVariables;
-    public PEXVariable[] variables;
+    public Dictionary<string, PEXVariable> variables = new();
     public UInt16 numProperties;
-    public PEXProperty[] properties;
+    public Dictionary<string, PEXProperty> properties = new();
     public UInt16 numStates;
     public PEXState[] states;
 
-    public void ReadFromFile(BinaryReader file)
+    public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
         nameIndex = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         size = BinaryFileUtil.ReadUInt32FromFileBigEndian(file);
@@ -29,12 +30,11 @@ public class PEXObject
 
         if(numVariables > 0)
         {
-            variables = new PEXVariable[numVariables];
-
             for(int i = 0; i < numVariables; i++)
             {
-                variables[i] = new();
-                variables[i].ReadFromFile(file);
+                PEXVariable variable = new();
+                variable.ReadFromFile(file, stringTable);
+                variables[variable.name] = variable;
             }
         }
 
@@ -42,12 +42,11 @@ public class PEXObject
 
         if(numProperties > 0)
         {
-            properties = new PEXProperty[numProperties];
-
             for(int i = 0; i < numProperties; i++)
             {
-                properties[i] = new();
-                properties[i].ReadFromFile(file);
+                PEXProperty property = new();
+                property.ReadFromFile(file, stringTable);
+                properties[property.name] = property;
             }
         }
 
@@ -59,8 +58,26 @@ public class PEXObject
             for(int i = 0; i < numStates; i++)
             {
                 states[i] = new();
-                states[i].ReadFromFile(file);
+                states[i].ReadFromFile(file, stringTable);
             }
         }
+    }
+
+    public PEXFunction GetFunctionByName(string functionName)
+    {
+        PEXFunction function = null;
+
+        for(int i = 0; i < numStates; i++)
+        {
+            PEXState state = states[i];
+
+            if(state.functions.ContainsKey(functionName))
+            {
+                function = state.functions[functionName];
+                break;
+            }
+        }
+
+        return function;
     }
 }

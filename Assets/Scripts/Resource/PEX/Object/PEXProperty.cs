@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PEXProperty
 {
-    public UInt16 name;
+    public string name;
     public UInt16 type;
     public UInt16 docString;
     public UInt32 userFlags;
@@ -13,9 +13,9 @@ public class PEXProperty
     public PEXFunction readHandler;
     public PEXFunction writeHandler;
 
-    public void ReadFromFile(BinaryReader file)
+    public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
-        name = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+        name = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
         type = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         docString = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         userFlags = BinaryFileUtil.ReadUInt32FromFileBigEndian(file);

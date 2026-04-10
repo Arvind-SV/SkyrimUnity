@@ -67,14 +67,76 @@ public class PEXFileData
 
         if(objectCount > 0)
         {
+            if(objectCount > 1)
+            {
+                Debug.LogError("More than one object found in script file. Currently unhandled\n");
+            }
+
             objects = new PEXObject[objectCount];
 
             for(int i = 0; i < objectCount ; i++)
             {
                 objects[i] = new();
-                objects[i].ReadFromFile(file);
+                objects[i].ReadFromFile(file, stringTable);
+            }
+        }
+    }
+
+    public PEXFunction GetFunctionByName(string functionName)
+    {
+        PEXFunction function = null;
+
+        for(int i = 0; i < objectCount; i++)
+        {
+            PEXObject obj = objects[i];
+            function = obj.GetFunctionByName(functionName);
+
+            if(function != null)
+            {
+                break;
             }
         }
 
+        return function;
+    }
+
+    public PEXVariable GetVariableByName(string name)
+    {
+        PEXVariable var = null;
+
+        for (int i = 0; i < objectCount; i++)
+        {
+            PEXObject obj = objects[i];
+
+            if(obj.variables.ContainsKey(name))
+            {
+                var = obj.variables[name];
+                break;
+            }
+        }
+            
+        return var;
+    }
+
+    public bool IsProperty(string name)
+    {
+        bool isProperty = false;
+
+        // all variables start with ::, and end with _var
+        string actualName = name.Substring(2, name.Length - 6);
+        Debug.Log("Actual name of argument " + actualName + "\n");
+
+        for (int i = 0; i < objectCount; i++)
+        {
+            PEXObject obj = objects[i];
+
+            if (obj.properties.ContainsKey(actualName))
+            {
+                isProperty = true;
+                break;
+            }
+        }
+
+        return isProperty;
     }
 }

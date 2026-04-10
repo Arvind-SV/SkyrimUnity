@@ -41,7 +41,8 @@ public class QuestStatus
 
                 if(fragment != null)
                 {
-                    PapyrusScriptManager.ProcessScript(record, fragment.scriptName, fragment.fragmentName);
+                    // No arguments being provided
+                    PapyrusScriptManager.ProcessScript(record.VMAD.scripts[fragment.scriptName], fragment.scriptName, fragment.fragmentName, new());
                 }
                 else
                 {

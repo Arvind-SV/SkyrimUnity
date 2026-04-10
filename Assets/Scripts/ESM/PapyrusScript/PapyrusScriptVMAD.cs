@@ -8,7 +8,7 @@ public class PapyrusScriptVMAD
     public Int16 version;
     public Int16 objFormat;
     public UInt16 scriptCount;
-    public List<PapyrusScriptData> scripts = new();
+    public Dictionary<string, PapyrusScriptData> scripts = new();
     // Fragment Data
     public byte unknown;
     public UInt16 fragmentCount;
@@ -36,7 +36,7 @@ public class PapyrusScriptVMAD
             {
                 PapyrusScriptData script = new();
                 processedBytes += script.ReadFromFile(file, objFormat);
-                scripts.Add(script);
+                scripts[script.scriptName] = script;
             }
 
             if(processedBytes < numBytes)

@@ -31,4 +31,16 @@ public class PEXVariableData
             boolData = file.ReadByte();
         }
     }
+
+    public float GetValue()
+    {
+        float value = 0.0f;
+
+        if(type == 3)
+        {
+            value = (float)intData;
+        }
+
+        return value;
+    }
 }

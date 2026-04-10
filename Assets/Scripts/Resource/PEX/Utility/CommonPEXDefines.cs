@@ -2,6 +2,12 @@ using UnityEngine;
 
 public static class CommonPEXDefines
 {
+    public enum FunctionFlag
+    {
+        Global = 0x01,
+        Native = 0x02
+    };
+
     public enum InstructionOpcodes
     {
         NOP = 0x00,

@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class PEXNamedFunction
 {
-    public UInt16 functionName;
+    public string functionName;
     public PEXFunction function = new();
 
-    public void ReadFromFile(BinaryReader file)
+    public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
-        functionName = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+        functionName = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
         function.ReadFromFile(file);
     }
 }
