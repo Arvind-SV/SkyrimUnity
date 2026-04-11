@@ -15,7 +15,7 @@ public class PEXFunction
     public UInt16 numInstructions;
     public PEXInstruction[] instructions;
 
-    public void ReadFromFile(BinaryReader file)
+    public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
         returnType = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         docString = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
@@ -54,7 +54,7 @@ public class PEXFunction
             for(int i = 0; i < numInstructions; i++)
             {
                 instructions[i] = new();
-                instructions[i].ReadFromFile(file);
+                instructions[i].ReadFromFile(file, stringTable);
             }
         }
     }

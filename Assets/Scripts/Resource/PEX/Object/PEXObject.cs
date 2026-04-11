@@ -7,7 +7,7 @@ public class PEXObject
 {
     public UInt16 nameIndex;
     public UInt32 size;
-    public UInt16 parentClassName;
+    public string parentClassName;
     public UInt16 docString;
     public UInt32 userFlags;
     public UInt16 autoStateName;
@@ -22,7 +22,7 @@ public class PEXObject
     {
         nameIndex = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         size = BinaryFileUtil.ReadUInt32FromFileBigEndian(file);
-        parentClassName = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+        parentClassName = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
         docString = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         userFlags = BinaryFileUtil.ReadUInt32FromFileBigEndian(file);
         autoStateName = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);

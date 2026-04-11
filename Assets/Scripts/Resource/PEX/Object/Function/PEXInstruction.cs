@@ -10,13 +10,13 @@ public class PEXInstruction
     public byte hasVariableArguments;
     public List<PEXVariableData> arguments = new();
 
-    public void ReadFromFile(BinaryReader file)
+    public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
         op = file.ReadByte();
-        ReadArgsBasedOnOpCode(file);
+        ReadArgsBasedOnOpCode(file, stringTable);
     }
 
-    public void ReadArgsBasedOnOpCode(BinaryReader file)
+    public void ReadArgsBasedOnOpCode(BinaryReader file, string[] stringTable)
     {
         hasVariableArguments = 0;
 
@@ -62,27 +62,27 @@ public class PEXInstruction
             default: numArguments = 0; break;
         }
 
-        ReadArgsFromFile(file);
+        ReadArgsFromFile(file, stringTable);
     }
 
-    public void ReadArgsFromFile(BinaryReader file)
+    public void ReadArgsFromFile(BinaryReader file, string[] stringTable)
     {
         for(int i = 0; i < numArguments; i++)
         {
             PEXVariableData arg = new();
-            arg.ReadFromFile(file);
+            arg.ReadFromFile(file, stringTable);
             arguments.Add(arg);
         }
 
         if(hasVariableArguments > 0)
         {
             PEXVariableData numVarArgs = new();
-            numVarArgs.ReadFromFile(file);
+            numVarArgs.ReadFromFile(file, stringTable);
 
             for(int i = 0; i < numVarArgs.intData; i++)
             {
                 PEXVariableData arg = new();
-                arg.ReadFromFile(file);
+                arg.ReadFromFile(file, stringTable);
                 arguments.Add(arg);
             }
         }

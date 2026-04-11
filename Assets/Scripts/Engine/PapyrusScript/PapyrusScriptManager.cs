@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -7,7 +8,7 @@ public static class PapyrusScriptManager
 {
     public static Dictionary<string, PEXFileData> loadedScriptsData = new();
 
-    public static void ProcessScript(PapyrusScriptData scriptESMData, string scriptName, string functionName, List<PEXVariableData> args)
+    public static void ProcessScript(PapyrusScriptData scriptESMData, string scriptName, string functionName, List<PapyrusScriptFunctionArgument> args)
     {
         Debug.Log("Script : " + scriptName + " Function : " + functionName + "\n");
 
@@ -31,10 +32,10 @@ public static class PapyrusScriptManager
         }
 
         // Running instructions of fragment
-        RunScriptFunction(scriptESMData, scriptData, functionName, args);
+        RunScriptFunction(scriptName, scriptESMData, scriptData, functionName, args);
     }
 
-    public static void RunScriptFunction(PapyrusScriptData scriptESMData, PEXFileData script, string functionName, List<PEXVariableData> args)
+    public static void RunScriptFunction(string scriptName, PapyrusScriptData scriptESMData, PEXFileData script, string functionName, List<PapyrusScriptFunctionArgument> args)
     {
         // Get Function data for fragment
         PEXFunction function = script.GetFunctionByName(functionName);
@@ -44,12 +45,12 @@ public static class PapyrusScriptManager
         {
             if ((function.flags & (byte)CommonPEXDefines.FunctionFlag.Native) > 0)
             {
-                ExecuteNativeFunction(functionName, args);
+                ExecuteNativeFunction(scriptName, scriptESMData, script, functionName, args);
             }
             else
             {
                 PapyrusScriptStack stack = new();
-                stack.RunInstructions(scriptESMData, script, function);
+                stack.RunInstructions(scriptName, scriptESMData, script, function);
             }     
         }
         else
@@ -58,12 +59,30 @@ public static class PapyrusScriptManager
         }
     }
 
-    public static void ExecuteNativeFunction(string functionName, List<PEXVariableData> args)
+    public static void ExecuteNativeFunction(string scriptName, PapyrusScriptData scriptESMData, PEXFileData script, string functionName, List<PapyrusScriptFunctionArgument> args)
     {
         if(functionName == "SetValue")
         {
-            // 1st argument. Variable to set value to
+            if(scriptName == "globalvariable")
+            {
+                // Argument 1 : Variable to set value to
+                UInt32 formID = args[0].uint32Data;
+                GlobalRecord globalRecord = SkyrimUnity.engine.GetGlobalRecord(formID);
 
+                if(globalRecord != null)
+                {
+                    // Argument 2 ignored
+
+                    // Argument 3 : Value to be set
+                    float value = args[2].floatData;
+                    
+                    SkyrimUnity.engine.SetGlobalValue(formID, value);
+                }
+            }
+            else
+            {
+                Debug.LogError("Unsupported parent type for function " + functionName + " : " + scriptName + "\n");
+            }
         }
         else
         {

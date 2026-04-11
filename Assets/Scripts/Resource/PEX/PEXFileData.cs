@@ -118,25 +118,31 @@ public class PEXFileData
         return var;
     }
 
-    public bool IsProperty(string name)
+    // If the argument variable is a property, then return the property object, else return null
+    public PEXProperty GetProperty(PEXVariableData data)
     {
-        bool isProperty = false;
+        PEXProperty property = null;
 
-        // all variables start with ::, and end with _var
-        string actualName = name.Substring(2, name.Length - 6);
-        Debug.Log("Actual name of argument " + actualName + "\n");
-
-        for (int i = 0; i < objectCount; i++)
+        // A variable can only be a property if its of identifier or string type
+        if((data.type == 1) || (data.type == 2))  
         {
-            PEXObject obj = objects[i];
+            string varName = data.stringData;
 
-            if (obj.properties.ContainsKey(actualName))
+            for (int i = 0; i < objectCount; i++)
             {
-                isProperty = true;
-                break;
+                PEXObject obj = objects[i];
+
+                foreach (PEXProperty prop in obj.properties.Values)
+                {
+                    if(prop.autoVarName == varName)
+                    {
+                        property = prop;
+                        break;
+                    }
+                }
             }
         }
 
-        return isProperty;
+        return property;
     }
 }

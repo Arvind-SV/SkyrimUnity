@@ -5,18 +5,18 @@ using UnityEngine;
 public class PEXVariableData
 {
     public byte type;
-    public UInt16 indexData;
+    public string stringData;
     public Int32 intData;
     public float floatData;
     public byte boolData;
 
-    public void ReadFromFile(BinaryReader file)
+    public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
         type = file.ReadByte();
 
         if ((type == 1) || (type == 2))
         {
-            indexData = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+            stringData = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
         }
         else if (type == 3)
         {

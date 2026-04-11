@@ -27,4 +27,16 @@ public class PapyrusScriptData
 
         return processedBytes;
     }
+
+    public PapyrusScriptProperty GetProperty(string propertyName)
+    {
+        PapyrusScriptProperty prop = null;
+
+        if(properties.ContainsKey(propertyName))
+        {
+            prop = properties[propertyName];
+        }
+
+        return prop;
+    }
 }

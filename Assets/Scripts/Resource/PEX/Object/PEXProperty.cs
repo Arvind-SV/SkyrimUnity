@@ -9,7 +9,7 @@ public class PEXProperty
     public UInt16 docString;
     public UInt32 userFlags;
     public byte flags;
-    public UInt16 autoVarName;
+    public string autoVarName;
     public PEXFunction readHandler;
     public PEXFunction writeHandler;
 
@@ -23,19 +23,19 @@ public class PEXProperty
 
         if((flags & 4) != 0)
         {
-            autoVarName = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+            autoVarName = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
         }
 
         if((flags & 5) == 1)
         {
             readHandler = new();
-            readHandler.ReadFromFile(file);
+            readHandler.ReadFromFile(file, stringTable);
         }
 
         if ((flags & 6) == 2)
         {
             writeHandler = new();
-            writeHandler.ReadFromFile(file);
+            writeHandler.ReadFromFile(file, stringTable);
         }
     }
 }

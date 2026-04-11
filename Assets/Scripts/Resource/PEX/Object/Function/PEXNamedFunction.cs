@@ -10,6 +10,6 @@ public class PEXNamedFunction
     public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
         functionName = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
-        function.ReadFromFile(file);
+        function.ReadFromFile(file, stringTable);
     }
 }
