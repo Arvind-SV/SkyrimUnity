@@ -47,4 +47,28 @@ public class BaseRecord
 
         return processedBytes;
     }
+
+    public virtual PapyrusScriptProperty GetScriptProperty(string scriptName, string propertyName)
+    {
+        PapyrusScriptProperty property = null;
+
+        if(type == "QUST")
+        {
+            property = ((QuestRecord)this).GetScriptProperty(scriptName, propertyName);
+        }
+
+        return property;
+    }
+
+    public virtual string GetObjectID()
+    {
+        string id = "";
+
+        if (type == "QUST")
+        {
+            id = ((QuestRecord)this).GetObjectID();
+        }
+
+        return id;
+    }
 }

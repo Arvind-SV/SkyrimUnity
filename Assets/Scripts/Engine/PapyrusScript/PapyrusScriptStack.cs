@@ -1,31 +1,53 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.DedicatedServer;
 
 public class PapyrusScriptStack
 {
+    public string scriptName;
+
+    // Pointer to ESM object to which this script is attached
+    public BaseRecord esmRecord;
+
     public UInt32 nextInstruction;
     // "Stack" for holding current value of function local variables
     public Dictionary<string, float> localVariablesValues = new();
+    public Dictionary<string, float> parameterValues = new();
 
-    public PapyrusScriptStack()
+    public PapyrusScriptStack(string scriptName, BaseRecord esmRecord)
     {
         nextInstruction = 0; // Initialize to first instruction
+        this.scriptName = scriptName;
+        this.esmRecord = esmRecord;
     }
 
-    public void RunInstructions(string scriptName, PapyrusScriptData scriptESMData, PEXFileData script, PEXFunction function)
+    public void RunInstructions(PEXFileData script, PEXFunction function, List<PapyrusScriptFunctionArgument> parameters)
     {
+        // Initialize local variables to 0
+        foreach(string name in function.locals.Keys)
+        {
+            localVariablesValues[name] = 0.0f;
+        }
+
+        int idx = 0;
+
+        // Extract parameter values
+        foreach (string name in function.parameters.Keys)
+        {
+            parameterValues[name] = parameters[idx].floatData;
+            idx++;
+        }
+
         while(nextInstruction < function.numInstructions)
         {
             PEXInstruction instruction = function.instructions[nextInstruction];
-            DecodeAndExecuteInstruction(scriptName, scriptESMData, script, instruction);
+            DecodeAndExecuteInstruction(function, script, instruction);
 
             nextInstruction++;
         }
     }
 
-    public PapyrusScriptFunctionArgument ConvertArgumentForOtherScripts(PapyrusScriptData scriptESMData, PEXFileData script, PEXVariableData arg)
+    public PapyrusScriptFunctionArgument ConvertArgumentForOtherScripts(PEXFunction functionData, PEXFileData script, PEXVariableData arg)
     {
         PapyrusScriptFunctionArgument data = new();
 
@@ -36,7 +58,7 @@ public class PapyrusScriptStack
             string propertyName = property.name;
 
             // Get value of property from script's ESM record
-            PapyrusScriptProperty propertyData = scriptESMData.GetProperty(propertyName);
+            PapyrusScriptProperty propertyData = esmRecord.GetScriptProperty(scriptName, propertyName);
 
             if(propertyData != null)
             {
@@ -62,10 +84,26 @@ public class PapyrusScriptStack
         {
             // Variable is not a property
 
-            if(IsLocalVariable(arg))
+            if(functionData.IsLocalVariable(arg))
             {
                 // Get current local variable value from stack
                 float varValue = localVariablesValues[arg.stringData];
+
+                data.type = typeof(float);
+                data.floatData = varValue;
+            }
+            else if(IsParameter(arg))
+            {
+                // Get parameter value
+                float paramValue = parameterValues[arg.stringData];
+
+                data.type = typeof(float);
+                data.floatData = paramValue;
+            }
+            else
+            {
+                // Variable contains direct value
+                float varValue = arg.GetValue();
 
                 data.type = typeof(float);
                 data.floatData = varValue;
@@ -75,22 +113,22 @@ public class PapyrusScriptStack
         return data;
     }
 
-    public bool IsLocalVariable(PEXVariableData arg)
+    public bool IsParameter(PEXVariableData variable)
     {
-        bool isLocalVariable = false;
+        bool isParameter = false;
 
-        if((arg.type == 1) || (arg.type == 2))
+        if ((variable.type == 1) || (variable.type == 2))
         {
-            if(localVariablesValues.ContainsKey(arg.stringData))
+            if (parameterValues.ContainsKey(variable.stringData))
             {
-                isLocalVariable = true;
+                isParameter = true;
             }
         }
 
-        return isLocalVariable;
+        return isParameter;
     }
 
-    public void DecodeAndExecuteInstruction(string scriptName, PapyrusScriptData scriptESMData, PEXFileData script, PEXInstruction instruction)
+    public void DecodeAndExecuteInstruction(PEXFunction functionData, PEXFileData script, PEXInstruction instruction)
     {
         byte opcode = instruction.op;
         List<PEXVariableData> arguments = instruction.arguments;
@@ -100,10 +138,14 @@ public class PapyrusScriptStack
             // Assignment operation
             Debug.Log("Assignment Operation\n");
 
-            // 1st argument : Name of local variable
-            PEXVariableData localVariableName = arguments[0];
-            string varName = localVariableName.stringData;
+            string varName = "";
 
+            // 1st argument : Name of local variable
+            if (functionData.IsLocalVariable(arguments[0]))
+            {
+                varName = arguments[0].stringData;    
+            }
+            
             // 2nd argument : Value
             PEXVariableData valueData = arguments[1];
             float value = valueData.GetValue();
@@ -126,10 +168,14 @@ public class PapyrusScriptStack
 
             string parentType;
 
-            if(var != null)
+            List<PapyrusScriptFunctionArgument> functionArgs = new();
+
+            if (var != null)
             {
                 // called function is part of script belonging to type of parent object
                 parentType = var.typeName;
+
+                functionArgs.Add(ConvertArgumentForOtherScripts(functionData, script, parentObjectData));
             }
             else
             {
@@ -148,6 +194,16 @@ public class PapyrusScriptStack
                         // Called function is part of inherited script object
                         parentType = script.objects[0].parentClassName;
                     }
+
+                    string objectID = esmRecord.GetObjectID();
+
+                    Debug.Log("Object ID : " + objectID + "\n");
+
+                    // Create script object argument containing object id.
+                    PapyrusScriptFunctionArgument objectArg = new();
+                    objectArg.type = typeof(UInt32);
+                    objectArg.uint32Data = esmRecord.recordFormID;
+                    functionArgs.Add(objectArg);
                 }
                 else
                 {
@@ -160,18 +216,17 @@ public class PapyrusScriptStack
             if(parentType != null)
             {
                 // Prepare argument list for imported function
-                List<PapyrusScriptFunctionArgument> functionArgs = new();
 
-                for (int i = 1; i < arguments.Count; i++)
+                for (int i = 2; i < arguments.Count; i++)
                 {
                     PEXVariableData arg = arguments[i];
-                    PapyrusScriptFunctionArgument processedArg = ConvertArgumentForOtherScripts(scriptESMData, script, arg);
+                    PapyrusScriptFunctionArgument processedArg = ConvertArgumentForOtherScripts(functionData, script, arg);
 
                     functionArgs.Add(processedArg);
                 }
 
                 // Call function on parent object script
-                PapyrusScriptManager.ProcessScript(scriptESMData, parentType, functionName, functionArgs);
+                PapyrusScriptManager.ProcessScript(esmRecord, parentType, functionName, functionArgs);
             }
         }
         else

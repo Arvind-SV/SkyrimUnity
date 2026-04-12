@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class PEXVariableType
 {
-    public UInt16 name;
-    public UInt16 type;
+    public string name;
+    public string type;
 
-    public void ReadFromFile(BinaryReader file)
+    public void ReadFromFile(BinaryReader file, string[] stringTable)
     {
-        name = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
-        type = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
+        name = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
+        type = PEXStringTableUtil.ReadFromStringTableUsingStringIndex(file, stringTable);
     }
 }

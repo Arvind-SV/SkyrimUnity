@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,5 +37,17 @@ public static class QuestManager
                 Debug.LogError("Quest with EDID " + edid + " not found!\n");
             }
         }
+    }
+
+    public static void SetQuestStage(UInt32 questFormID, Int16 stage)
+    {
+        QuestRecord questRecord = quests.questRecords[questFormID];
+
+        string edid = questRecord.EDID;
+
+        Debug.Log("Quest EDID : " + edid + " Stage : " + stage + "\n");
+
+        QuestStatus questStatus = activeQuests[edid];
+        questStatus.ProcessStage(stage);
     }
 }

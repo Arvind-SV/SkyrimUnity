@@ -8,7 +8,7 @@ public static class PapyrusScriptManager
 {
     public static Dictionary<string, PEXFileData> loadedScriptsData = new();
 
-    public static void ProcessScript(PapyrusScriptData scriptESMData, string scriptName, string functionName, List<PapyrusScriptFunctionArgument> args)
+    public static void ProcessScript(BaseRecord esmRecord, string scriptName, string functionName, List<PapyrusScriptFunctionArgument> args)
     {
         Debug.Log("Script : " + scriptName + " Function : " + functionName + "\n");
 
@@ -32,10 +32,10 @@ public static class PapyrusScriptManager
         }
 
         // Running instructions of fragment
-        RunScriptFunction(scriptName, scriptESMData, scriptData, functionName, args);
+        RunScriptFunction(scriptName, esmRecord, scriptData, functionName, args);
     }
 
-    public static void RunScriptFunction(string scriptName, PapyrusScriptData scriptESMData, PEXFileData script, string functionName, List<PapyrusScriptFunctionArgument> args)
+    public static void RunScriptFunction(string scriptName, BaseRecord esmRecord, PEXFileData script, string functionName, List<PapyrusScriptFunctionArgument> args)
     {
         // Get Function data for fragment
         PEXFunction function = script.GetFunctionByName(functionName);
@@ -43,14 +43,35 @@ public static class PapyrusScriptManager
         // Process all instructions sequentially
         if (function != null)
         {
+            PapyrusScriptFunctionArgument objectData = null;
+            PapyrusScriptFunctionArgument returnObjectData = null;
+            List<PapyrusScriptFunctionArgument> functionParameters = null;
+
+            if (args != null)
+            {
+                // Script function has arguments
+                functionParameters = new();
+
+                // Argument 1 is object to which function is applied
+                objectData = args[0];
+
+                // Argument 2 is object for holding return value. Currently ignored
+
+                // Argument 3 onwards is the function parameters
+                for(int i = 2; i < args.Count; i++)
+                {
+                    functionParameters.Add(args[i]);
+                }
+            }
+
             if ((function.flags & (byte)CommonPEXDefines.FunctionFlag.Native) > 0)
             {
-                ExecuteNativeFunction(scriptName, scriptESMData, script, functionName, args);
+                ExecuteNativeFunction(scriptName, functionName, objectData, returnObjectData, functionParameters);
             }
             else
             {
-                PapyrusScriptStack stack = new();
-                stack.RunInstructions(scriptName, scriptESMData, script, function);
+                PapyrusScriptStack stack = new(scriptName, esmRecord);
+                stack.RunInstructions(script, function, functionParameters);
             }     
         }
         else
@@ -59,25 +80,42 @@ public static class PapyrusScriptManager
         }
     }
 
-    public static void ExecuteNativeFunction(string scriptName, PapyrusScriptData scriptESMData, PEXFileData script, string functionName, List<PapyrusScriptFunctionArgument> args)
+    public static void ExecuteNativeFunction(string scriptName, string functionName, PapyrusScriptFunctionArgument functionObject, PapyrusScriptFunctionArgument returnObject,  List<PapyrusScriptFunctionArgument> parameters)
     {
         if(functionName == "SetValue")
         {
-            if(scriptName == "globalvariable")
+            if (scriptName == "globalvariable")
             {
-                // Argument 1 : Variable to set value to
-                UInt32 formID = args[0].uint32Data;
-                GlobalRecord globalRecord = SkyrimUnity.engine.GetGlobalRecord(formID);
-
-                if(globalRecord != null)
+                if (functionObject != null)
                 {
-                    // Argument 2 ignored
+                    UInt32 formID = functionObject.uint32Data;
+                    GlobalRecord globalRecord = SkyrimUnity.engine.GetGlobalRecord(formID);
 
-                    // Argument 3 : Value to be set
-                    float value = args[2].floatData;
-                    
-                    SkyrimUnity.engine.SetGlobalValue(formID, value);
+                    if (globalRecord != null)
+                    {
+                        float value = parameters[0].floatData;
+
+                        SkyrimUnity.engine.SetGlobalValue(formID, value);
+                    }
                 }
+            }
+            else
+            {
+                Debug.LogError("Unsupported parent type for function " + functionName + " : " + scriptName + "\n");
+            }
+        }
+        else if(functionName == "SetCurrentStageID")
+        {
+            if(scriptName == "Quest")
+            {
+                // Get ID of quest
+                UInt32 formID = functionObject.uint32Data;
+
+                // Get requested quest stage
+                float stage = parameters[0].floatData;
+
+                // Get quest state object
+                QuestManager.SetQuestStage(formID, (Int16)stage);
             }
             else
             {

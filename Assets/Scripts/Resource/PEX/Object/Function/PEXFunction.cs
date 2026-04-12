@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -9,9 +10,9 @@ public class PEXFunction
     public UInt32 userFlags;
     public byte flags;
     public UInt16 numParams;
-    public PEXVariableType[] parameters;
+    public Dictionary<string, PEXVariableType> parameters = new();
     public UInt16 numLocals;
-    public PEXVariableType[] locals;
+    public Dictionary<string, PEXVariableType> locals = new();
     public UInt16 numInstructions;
     public PEXInstruction[] instructions;
 
@@ -25,24 +26,24 @@ public class PEXFunction
         numParams = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         if(numParams > 0)
         {
-            parameters = new PEXVariableType[numParams];
-
             for(int i = 0; i < numParams; i++)
             {
-                parameters[i] = new();
-                parameters[i].ReadFromFile(file);
+                PEXVariableType parameter = new();
+                parameter.ReadFromFile(file, stringTable);
+
+                parameters[parameter.name] = parameter;
             }
         }
 
         numLocals = BinaryFileUtil.ReadUInt16FromFileBigEndian(file);
         if (numLocals > 0)
         {
-            locals = new PEXVariableType[numLocals];
-
             for (int i = 0; i < numLocals; i++)
             {
-                locals[i] = new();
-                locals[i].ReadFromFile(file);
+                PEXVariableType local = new();
+                local.ReadFromFile(file, stringTable);
+
+                locals[local.name] = local;
             }
         }
 
@@ -57,5 +58,20 @@ public class PEXFunction
                 instructions[i].ReadFromFile(file, stringTable);
             }
         }
+    }
+
+    public bool IsLocalVariable(PEXVariableData variable)
+    {
+        bool isLocalVariable = false;
+
+        if ((variable.type == 1) || (variable.type == 2))
+        {
+            if (locals.ContainsKey(variable.stringData))
+            {
+                isLocalVariable = true;
+            }
+        }
+
+        return isLocalVariable;
     }
 }

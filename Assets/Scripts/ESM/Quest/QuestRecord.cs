@@ -15,6 +15,22 @@ public class QuestRecord : BaseRecord
 
     }
 
+    public override PapyrusScriptProperty GetScriptProperty(string scriptName, string propertyName)
+    {
+        PapyrusScriptProperty property = null;
+
+        PapyrusScriptData scriptData = VMAD.scripts[scriptName];
+
+        property = scriptData.GetProperty(propertyName);
+
+        return property;
+    }
+
+    public override string GetObjectID()
+    {
+        return EDID;
+    }
+
     public PapyrusScriptFragment GetScriptFragment(Int16 questStageIdx, Int32 logEntryIdx)
     {
         PapyrusScriptFragment fragment = null;
