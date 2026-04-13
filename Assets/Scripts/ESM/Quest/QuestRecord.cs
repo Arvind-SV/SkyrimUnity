@@ -17,7 +17,7 @@ public class QuestRecord : BaseRecord
 
     public override PapyrusScriptProperty GetScriptProperty(string scriptName, string propertyName)
     {
-        PapyrusScriptProperty property = null;
+        PapyrusScriptProperty property;
 
         PapyrusScriptData scriptData = VMAD.scripts[scriptName];
 
@@ -49,7 +49,7 @@ public class QuestRecord : BaseRecord
         return fragment;
     }
 
-    public override UInt32 ReadFromFile(BinaryReader file)
+    public void ReadFromFile()
     {
         UInt32 processedBytes = 0;
 
@@ -58,6 +58,7 @@ public class QuestRecord : BaseRecord
         string fieldType;
         UInt16 fieldSize;
 
+        BinaryReader file = recordData;
 
         while (processedBytes < numBytes)
         {
@@ -104,7 +105,9 @@ public class QuestRecord : BaseRecord
             processedBytes += fieldSize;
         }
 
-        return processedBytes;
+        recordData.Close();
+        file.Close();
+        recordData = null;
     }
 
     public Int16 GetStartUpStage()

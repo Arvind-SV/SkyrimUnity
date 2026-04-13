@@ -28,12 +28,12 @@ public class GlobalGroup : BaseGroup
             processedBytes += record.ReadFromFile(file);
 
             recordType = record.type;
-            recordSize = record.size;
+            recordSize = record.compressedDataSize;
 
             if (recordType == "GLOB")
             {
                 GlobalRecord globalRecord = new(record);
-                globalRecord.ReadFromFile(file);
+                globalRecord.ReadFromFile();
                 globalRecords[globalRecord.recordFormID] = globalRecord;
             }
             else

@@ -8,6 +8,7 @@ public class ESMParser
     public TES4Record tes4Record;
     public QuestGroup quests;
     public GlobalGroup globalVariables;
+    public ActorGroup actors;
 
     public Dictionary<UInt32, string> localizedStringTable = new();
 
@@ -39,7 +40,6 @@ public class ESMParser
 
         if(ContainsLocalizedStrings())
         {
-            Debug.Log("ESM file contains localized strings\n");
             LoadLocalizedStringTable(esmFilePath);
         }
 
@@ -65,6 +65,12 @@ public class ESMParser
                     // Group contains global variables
                     globalVariables = new(group);
                     globalVariables.ReadFromFile(file);
+                }
+                else if(groupLabel == "NPC_")
+                {
+                    // Group contains actor records(eg NPCs, or player character)
+                    actors = new(group);
+                    actors.ReadFromFile(file);
                 }
                 else
                 {
@@ -104,8 +110,6 @@ public class ESMParser
         foreach(string ext in extensions)
         {
             string filePath = "Strings/" + esmFileName + ext;
-
-            Debug.Log("Loading localized string table from file: " + filePath + "\n");
 
             BinaryReader stringTableFile = ResourceManager.LoadFile(filePath);
 

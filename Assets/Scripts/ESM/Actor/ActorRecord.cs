@@ -2,13 +2,12 @@ using System;
 using System.IO;
 using UnityEngine;
 
-public class GlobalRecord : BaseRecord
+public class ActorRecord : BaseRecord
 {
     public string EDID;
-    public byte FNAM;
-    public float FLTV;
+    public string FULL;
 
-    public GlobalRecord(BaseRecord baseRecord) : base(baseRecord)
+    public ActorRecord(BaseRecord baseRecord) : base(baseRecord)
     {
 
     }
@@ -16,7 +15,6 @@ public class GlobalRecord : BaseRecord
     public void ReadFromFile()
     {
         UInt32 processedBytes = 0;
-
         UInt32 numBytes = size;
 
         string fieldType;
@@ -31,17 +29,13 @@ public class GlobalRecord : BaseRecord
             fieldSize = file.ReadUInt16();
             processedBytes += 6;
 
-            if(fieldType == "EDID")
+            if (fieldType == "EDID")
             {
                 EDID = StringUtil.ReadZStringFromFile(file, fieldSize);
             }
-            else if(fieldType == "FNAM")
+            else if(fieldType == "FULL")
             {
-                FNAM = file.ReadByte();
-            }
-            else if(fieldType == "FLTV")
-            {
-                FLTV = file.ReadSingle();
+                FULL = StringUtil.ReadLStringFromFile(file, fieldSize);
             }
             else
             {

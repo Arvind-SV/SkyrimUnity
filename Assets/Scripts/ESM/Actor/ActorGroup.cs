@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class QuestGroup : BaseGroup
+public class ActorGroup : BaseGroup
 {
-    public Dictionary<UInt32, QuestRecord> questRecords = new();
+    public Dictionary<UInt32, ActorRecord> actorRecords = new();
 
-    public QuestGroup(BaseGroup baseGroup) : base(baseGroup)
+    public ActorGroup(BaseGroup baseGroup) : base(baseGroup)
     {
 
     }
@@ -30,35 +30,19 @@ public class QuestGroup : BaseGroup
             recordType = record.type;
             recordSize = record.compressedDataSize;
 
-            if (recordType == "QUST")
+            if (recordType == "NPC_")
             {
-                QuestRecord questRecord = new(record);
-                questRecord.ReadFromFile();
-                questRecords[questRecord.recordFormID] = questRecord;
+                ActorRecord actorRecord = new(record);
+                actorRecord.ReadFromFile();
+                actorRecords[actorRecord.recordFormID] = actorRecord;
             }
             else
             {
-                Debug.Log("Unexpected record type found in quest group: " + recordType + "\n");
+                Debug.Log("Unexpected record type found in actor group: " + recordType + "\n");
                 file.BaseStream.Position += recordSize;
             }
 
             processedBytes += recordSize;
         }
-    }
-
-    public QuestRecord GetQuestWithEDID(string edid)
-    {
-        QuestRecord questRecord = null;
-
-        foreach(QuestRecord record in questRecords.Values)
-        {
-            if(record.EDID == edid)
-            {
-                questRecord = record;
-                break;
-            }
-        }
-
-        return questRecord;
     }
 }

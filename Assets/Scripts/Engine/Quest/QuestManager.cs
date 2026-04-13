@@ -25,8 +25,6 @@ public static class QuestManager
 
             if(questRecord != null)
             {
-                Debug.Log("Starting quest " + questRecord.FULL + "\n");
-
                 QuestStatus questStatus = new(questRecord);
                 activeQuests[edid] = questStatus;
 

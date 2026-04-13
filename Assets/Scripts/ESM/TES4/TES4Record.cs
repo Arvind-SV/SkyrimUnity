@@ -6,7 +6,7 @@ public class TES4Record : BaseRecord
 {
     public bool isLocalized;
 
-    public override UInt32 ReadFromFile(BinaryReader file)
+    public new void ReadFromFile(BinaryReader file)
     {
         base.ReadFromFile(file);
 
@@ -20,10 +20,9 @@ public class TES4Record : BaseRecord
         }
 
         // Nothing needed from TES4 record as of now
-        file.BaseStream.Position += size;
 
-        UInt32 processedBytes = size;
+        recordData.Close();
+        recordData = null;
 
-        return processedBytes;
     }
 }

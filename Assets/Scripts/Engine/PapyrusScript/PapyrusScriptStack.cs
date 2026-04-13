@@ -136,7 +136,6 @@ public class PapyrusScriptStack
         if (opcode == (byte)CommonPEXDefines.InstructionOpcodes.CAST)
         {
             // Assignment operation
-            Debug.Log("Assignment Operation\n");
 
             string varName = "";
 
@@ -196,8 +195,6 @@ public class PapyrusScriptStack
                     }
 
                     string objectID = esmRecord.GetObjectID();
-
-                    Debug.Log("Object ID : " + objectID + "\n");
 
                     // Create script object argument containing object id.
                     PapyrusScriptFunctionArgument objectArg = new();

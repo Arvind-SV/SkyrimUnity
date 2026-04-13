@@ -1,17 +1,21 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using UnityEngine;
 
 public class BaseRecord
 {
     public string type;
-    public UInt32 size;
+    public UInt32 size; // Decompressed data size
     public UInt32 flags;
     public UInt32 recordFormID;
     public UInt16 timestamp;
     public UInt16 versionControlInfo;
     public UInt16 internalVersion;
     public UInt16 unknown;
+
+    public UInt32 compressedDataSize; // same as decompressed data size if data is not compressed
+    public BinaryReader recordData;
 
     public BaseRecord()
     {
@@ -28,6 +32,8 @@ public class BaseRecord
         versionControlInfo = baseRecord.versionControlInfo;
         internalVersion = baseRecord.internalVersion;
         unknown = baseRecord.unknown;
+
+        recordData = baseRecord.recordData;
     }
 
     public virtual UInt32 ReadFromFile(BinaryReader file)
@@ -45,7 +51,45 @@ public class BaseRecord
 
         processedBytes = 24;
 
+        if (!IsDataCompressed())
+        {
+            recordData = new(new MemoryStream(file.ReadBytes((int)size)));
+            compressedDataSize = size;
+        }
+        else
+        {
+            // Compressed data has 4 bytes at the beginning that mentions decompressed data size
+            UInt32 decompressedDataSize = file.ReadUInt32();
+            
+            processedBytes += 4;
+
+            compressedDataSize = size - 4;
+
+            // The first two bytes of compressed data is ZLIB header which is not allowed by DeflateStream
+            file.BaseStream.Position += 2;
+
+            // 4 bytes for decompressed data size and 2 bytes for ZLIB header
+            size -= 6;
+
+            DeflateStream decompressedData = new(new MemoryStream(file.ReadBytes((int)(size))), CompressionMode.Decompress);
+
+            MemoryStream decompressedCopy = new();
+            decompressedData.CopyTo(decompressedCopy);
+
+            size = decompressedDataSize;
+
+            recordData = new(decompressedCopy);
+            recordData.BaseStream.Position = 0;
+
+            decompressedData.Close();
+        }
+
         return processedBytes;
+    }
+
+    public bool IsDataCompressed()
+    {
+        return ((flags & 0x00040000) > 0);
     }
 
     public virtual PapyrusScriptProperty GetScriptProperty(string scriptName, string propertyName)
