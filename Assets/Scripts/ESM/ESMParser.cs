@@ -9,6 +9,7 @@ public class ESMParser
     public QuestGroup quests;
     public GlobalGroup globalVariables;
     public ActorGroup actors;
+    public StaticGroup staticObjects;
 
     public Dictionary<UInt32, string> localizedStringTable = new();
 
@@ -71,6 +72,12 @@ public class ESMParser
                     // Group contains actor records(eg NPCs, or player character)
                     actors = new(group);
                     actors.ReadFromFile(file);
+                }
+                else if(groupLabel == "STAT")
+                {
+                    // Group contains static objects
+                    staticObjects = new(group);
+                    staticObjects.ReadFromFile(file);
                 }
                 else
                 {
