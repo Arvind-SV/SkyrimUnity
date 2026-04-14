@@ -31,6 +31,8 @@ public static class SkyrimUnity
 
     public static SkyrimEngine engine;
 
+    public static bool isDebugModeEnabled = true;
+
     [RuntimeInitializeOnLoadMethod]
     public static void StartSkyrim()
     {
@@ -42,10 +44,16 @@ public static class SkyrimUnity
         // Initializing Skyrim engine
         engine = new();
         engine.Initialize();
-        
 
-        // Start new game
-        engine.StartNewGame();
+        if (isDebugModeEnabled)
+        {
+            engine.LoadInteriorCellByFormID(0x0007C98B); // Thalmor Embassy
+        }
+        else
+        {
+            // Start new game
+            engine.StartNewGame();
+        }
     }
 
     

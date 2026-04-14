@@ -10,6 +10,7 @@ public class ESMParser
     public GlobalGroup globalVariables;
     public ActorGroup actors;
     public StaticGroup staticObjects;
+    public CellGroup interiorCells;
 
     public Dictionary<UInt32, string> localizedStringTable = new();
 
@@ -78,6 +79,12 @@ public class ESMParser
                     // Group contains static objects
                     staticObjects = new(group);
                     staticObjects.ReadFromFile(file);
+                }
+                else if(groupLabel == "CELL")
+                {
+                    // Group contains interior cells(along with references)
+                    interiorCells = new(group);
+                    interiorCells.ReadFromFile(file);
                 }
                 else
                 {

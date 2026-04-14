@@ -9,7 +9,12 @@ public static class CommonESMDefines
 
     public enum GroupLabelType
     {
-        Top = 0
+        Top = 0,
+        InteriorCellBlock = 2,
+        InteriorCellSubBlock = 3,
+        CellChildren = 6,
+        CellPersistentChildren = 8,
+        CellTemporaryChildren = 9
     };
 
     public enum QuestStageFlags

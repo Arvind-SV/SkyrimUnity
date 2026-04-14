@@ -39,7 +39,6 @@ public class StaticGroup : BaseGroup
             else
             {
                 Debug.Log("Unexpected record type found in static group: " + recordType + "\n");
-                file.BaseStream.Position += recordSize;
             }
 
             processedBytes += recordSize;

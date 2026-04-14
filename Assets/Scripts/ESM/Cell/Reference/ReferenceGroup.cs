@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class ActorGroup : BaseGroup
+public class ReferenceGroup : BaseGroup
 {
-    public Dictionary<UInt32, ActorRecord> actorRecords = new();
+    public Dictionary<UInt32, ReferenceRecord> cellReferences = new();
 
-    public ActorGroup(BaseGroup baseGroup) : base(baseGroup)
+    public ReferenceGroup(BaseGroup baseGroup) : base(baseGroup)
     {
 
     }
@@ -30,15 +30,11 @@ public class ActorGroup : BaseGroup
             recordType = record.type;
             recordSize = record.compressedDataSize;
 
-            if (recordType == "NPC_")
+            if (recordType == "REFR")
             {
-                ActorRecord actorRecord = new(record);
-                actorRecord.ReadFromFile();
-                actorRecords[actorRecord.recordFormID] = actorRecord;
-            }
-            else
-            {
-                Debug.Log("Unexpected record type found in actor group: " + recordType + "\n");
+                ReferenceRecord referenceRecord = new(record);
+                referenceRecord.ReadFromFile();
+                cellReferences[referenceRecord.recordFormID] = referenceRecord;
             }
 
             processedBytes += recordSize;

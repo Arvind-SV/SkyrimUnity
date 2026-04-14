@@ -94,4 +94,21 @@ public class SkyrimEngine
 
         return value;
     }
+
+    public void LoadInteriorCellByFormID(UInt32 formID)
+    {
+        if(esmData.interiorCells.interiorCellRecords.ContainsKey(formID))
+        {
+            CellRecord cellRecord = esmData.interiorCells.interiorCellRecords[formID];
+
+            Debug.Log("Loading Interior Cell " + cellRecord.FULL + "\n");
+
+            // Create root game object for interior cell
+            GameObject cellObject = new(cellRecord.FULL);
+        }
+        else
+        {
+            Debug.LogError("Interior Cell with formID " + formID + " not found\n");
+        }
+    }
 }

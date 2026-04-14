@@ -39,7 +39,6 @@ public class QuestGroup : BaseGroup
             else
             {
                 Debug.Log("Unexpected record type found in quest group: " + recordType + "\n");
-                file.BaseStream.Position += recordSize;
             }
 
             processedBytes += recordSize;

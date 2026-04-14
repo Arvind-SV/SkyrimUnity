@@ -39,7 +39,6 @@ public class GlobalGroup : BaseGroup
             else
             {
                 Debug.Log("Unexpected record type found in global group: " + recordType + "\n");
-                file.BaseStream.Position += recordSize;
             }
 
             processedBytes += recordSize;
